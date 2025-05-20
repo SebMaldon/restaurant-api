@@ -83,10 +83,13 @@ API para gestión de restaurantes, reseñas y usuarios con autenticación JWT y 
 
 | Método | Endpoint           | Descripción                     | Auth | Roles     |
 |--------|--------------------|---------------------------------|------|-----------|
+| GET    | `/users/`          | Obtener todos los perfiles de usuario | Sí   | user/admin|
+| GET    | `/users/profile`   | Obtener perfil usuario          | Sí   | user/admin|
 | POST   | `/users/register`  | Registrar nuevo usuario         | No   | -         |
 | POST   | `/users/login`     | Iniciar sesión                  | No   | -         |
-| GET    | `/users/profile`   | Obtener perfil usuario          | Sí   | user/admin|
 | PUT    | `/users/profile`   | Actualizar perfil               | Sí   | user/admin|
+| GET    | `/users/logout/:id`   | Deshabilitar un usuario      | Sí   | user/admin|
+| GET    | `/users/:id`   | Eliminar el registro de un usuario  | Sí   | admin|
 
 ### Restaurantes
 
