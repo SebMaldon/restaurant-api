@@ -328,7 +328,7 @@ PORT=3000
 
 1. Clonar repositorio:
 ```bash
-git clone https://github.com/...
+git clone https://github.com/SebMaldon/restaurant-api.git
 cd restaurant-api
 ```
 
