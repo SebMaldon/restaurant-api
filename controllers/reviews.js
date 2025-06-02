@@ -1,33 +1,32 @@
-const Review = require('../models/Review');
-const Restaurant = require('../models/Restaurant');
+const Review = require('../models/Review'); // Modelo de reseñas
+const Restaurant = require('../models/Restaurant'); // Modelo de restaurantes
 
-// Obtener todas las reseñas
+// Obtener todas las reseñas con datos poblados
 exports.getAllReviews = async (req, res) => {
   try {
     const reviews = await Review.find()
-      .populate('restaurant_id', 'name')
-      .populate('user_id', 'profile.name');
-    res.json(reviews);
+      .populate('restaurant_id', 'name') // Población de datos del restaurante
+      .populate('user_id', 'profile.name'); // Población de datos del usuario
+    res.json(reviews); // Devuelve todas las reseñas
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ message: err.message }); // Error del servidor
   }
 };
 
-// Obtener reseñas por restaurante
+// Obtener reseñas de un restaurante específico
 exports.getReviewsByRestaurant = async (req, res) => {
   try {
     const reviews = await Review.find({ restaurant_id: req.params.restaurantId })
-      .populate('user_id', 'profile.name');
-    
-    res.json(reviews);
+      .populate('user_id', 'profile.name'); // Población de datos del usuario
+    res.json(reviews); // Devuelve reseñas del restaurante
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ message: err.message }); // Error del servidor
   }
 };
 
-// Crear una nueva reseña
+// Crear nueva reseña
 exports.createReview = async (req, res) => {
-  const review = new Review({
+  const review = new Review({ // Crea nueva reseña
     restaurant_id: req.params.restaurantId,
     user_id: req.user._id,
     rating: req.body.rating,
@@ -36,82 +35,59 @@ exports.createReview = async (req, res) => {
   });
 
   try {
-    // Verificar que el restaurante existe
-    const restaurant = await Restaurant.findById(req.params.restaurantId);
-    if (!restaurant) {
-      return res.status(404).json({ message: 'Restaurante no encontrado' });
-    }
-
-    const newReview = await review.save();
+    const restaurant = await Restaurant.findById(req.params.restaurantId); // Verifica existencia del restaurante
+    if (!restaurant) return res.status(404).json({ message: 'Restaurante no encontrado' });
     
-    // Actualizar el rating promedio del restaurante
-    await updateRestaurantRating(req.params.restaurantId);
-    
-    res.status(201).json(newReview);
+    const newReview = await review.save(); // Guarda la reseña
+    await updateRestaurantRating(req.params.restaurantId); // Actualiza rating del restaurante
+    res.status(201).json(newReview); // Devuelve la nueva reseña
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    res.status(400).json({ message: err.message }); // Error de validación
   }
 };
 
-// Actualizar una reseña
+// Actualizar reseña existente
 exports.updateReview = async (req, res) => {
   try {
-    const review = await Review.findOneAndUpdate(
-      { _id: req.params.reviewId, user_id: req.user._id },
+    const review = await Review.findOneAndUpdate( // Busca y actualiza
+      { _id: req.params.reviewId, user_id: req.user._id }, // Solo del usuario
       req.body,
-      { new: true, runValidators: true }
+      { new: true, runValidators: true } // Devuelve el documento actualizado
     );
+    if (!review) return res.status(404).json({ message: 'Reseña no encontrada o no autorizado' });
     
-    if (!review) {
-      return res.status(404).json({ message: 'Reseña no encontrada o no autorizado' });
-    }
-    
-    // Actualizar el rating promedio del restaurante
-    await updateRestaurantRating(review.restaurant_id);
-    
-    res.json(review);
+    await updateRestaurantRating(review.restaurant_id); // Actualiza rating del restaurante
+    res.json(review); // Devuelve reseña actualizada
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    res.status(400).json({ message: err.message }); // Error de validación
   }
 };
 
-// Eliminar una reseña
+// Eliminar reseña
 exports.deleteReview = async (req, res) => {
   try {
-    const review = await Review.findOneAndDelete({
-      _id: req.params.reviewId,
-      user_id: req.user._id
+    const review = await Review.findOneAndDelete({ // Busca y elimina
+      _id: req.params.reviewId, 
+      user_id: req.user._id // Solo del usuario
     });
+    if (!review) return res.status(404).json({ message: 'Reseña no encontrada o no autorizado' });
     
-    if (!review) {
-      return res.status(404).json({ message: 'Reseña no encontrada o no autorizado' });
-    }
-    
-    // Actualizar el rating promedio del restaurante
-    await updateRestaurantRating(review.restaurant_id);
-    
-    res.json({ message: 'Reseña eliminada' });
+    await updateRestaurantRating(review.restaurant_id); // Actualiza rating del restaurante
+    res.json({ message: 'Reseña eliminada' }); // Confirma eliminación
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ message: err.message }); // Error del servidor
   }
 };
 
-// Función para actualizar el rating promedio de un restaurante
+// Actualiza el rating promedio de un restaurante
 async function updateRestaurantRating(restaurantId) {
-  const result = await Review.aggregate([
+  const result = await Review.aggregate([ // Agregación para calcular promedio
     { $match: { restaurant_id: restaurantId } },
     { $group: { _id: null, average: { $avg: '$rating' }, count: { $sum: 1 } } }
   ]);
 
-  if (result.length > 0) {
-    await Restaurant.findByIdAndUpdate(restaurantId, {
-      'rating.average': result[0].average,
-      'rating.count': result[0].count
-    });
-  } else {
-    await Restaurant.findByIdAndUpdate(restaurantId, {
-      'rating.average': 0,
-      'rating.count': 0
-    });
-  }
+  await Restaurant.findByIdAndUpdate(restaurantId, { // Actualiza restaurante
+    'rating.average': result[0]?.average || 0, // Promedio o 0 si no hay reseñas
+    'rating.count': result[0]?.count || 0 // Conteo o 0 si no hay reseñas
+  });
 }
