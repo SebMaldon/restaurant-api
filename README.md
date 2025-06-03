@@ -6,6 +6,14 @@
 
 API para gestión de restaurantes, reseñas y usuarios con autenticación JWT y control de roles.
 
+Integrantes del equipo:
+- Ibarra Sánchez Alberto 21400706
+- Morales Maldonado Javier Sebastian 21400731
+- Rodríguez Sánchez Juan Alejandro 21400766
+
+## Link del vídeo de explicación
+### www...
+
 ## Tabla de Contenidos
 
 1. [Modelos de Datos](#modelos-de-datos)
