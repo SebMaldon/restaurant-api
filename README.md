@@ -12,7 +12,7 @@ Integrantes del equipo:
 - Rodríguez Sánchez Juan Alejandro 21400766
 
 ## Link del vídeo de explicación
-### www...
+### https://youtu.be/DvqMFV0b3JA
 
 ## Tabla de Contenidos
 
