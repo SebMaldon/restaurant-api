@@ -14,6 +14,9 @@ Integrantes del equipo:
 ## Link del vídeo de explicación
 ### https://youtu.be/DvqMFV0b3JA
 
+## Link del video de explicación de review
+### https://youtu.be/ja3Cah1Updc
+
 ## Tabla de Contenidos
 
 1. [Modelos de Datos](#modelos-de-datos)
