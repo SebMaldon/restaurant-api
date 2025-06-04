@@ -17,6 +17,9 @@ Integrantes del equipo:
 ## Link del video de explicación de review
 ### https://youtu.be/ja3Cah1Updc
 
+## Link del video de explicación de restaurante
+### https://youtu.be/3cyGV_Aqerw
+
 ## Tabla de Contenidos
 
 1. [Modelos de Datos](#modelos-de-datos)
